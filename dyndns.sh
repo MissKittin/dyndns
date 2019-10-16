@@ -86,6 +86,7 @@ exit 0
 <?php
 	// PHP DDNS server
 	// 17.01.2019
+	// fake 404 16.10.2019
 
 	/* Usage: sent arguments in GET form
 	For Bash DDNS client:
@@ -143,5 +144,6 @@ exit 0
 			exit();
 		}
 	}
+	http_response_code(404);
 ?>
 <!-- You can write page here -->
