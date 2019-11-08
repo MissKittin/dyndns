@@ -5,12 +5,14 @@
 ### 17.01.2019
 ### Patch 03.09.2019
 ### wget params correction 22.09.2019
+### client info 08.11.2019
 #####################
 
 # Settings
 host='http://your.domain/dyndns/'
 user='updateusername'
 password='updatepassword'
+client_name='your_client_name_without_spaces'
 sleep_time='900' # seconds
 log_file='/tmp/.ddns_client.log'
 
@@ -44,8 +46,7 @@ while true; do
 		else
 			# Send data to server
 			loga "Updating ddns $ip $date $time "
-			result=`wget -4 -q -O- "${host}?user=${user}&password=${password}&ip=${ip}&time=${time}&date=${date}"`
-
+			[ "$client_name" = '' ] && result=`wget -4 -q -O- "${host}?user=${user}&password=${password}&ip=${ip}&time=${time}&date=${date}"` || result=`wget -4 -q -O- "${host}?user=${user}&password=${password}&client=${client_name}&ip=${ip}&time=${time}&date=${date}"`
 			# Log results
 			if [ "$?" = 0 ]; then
 				loga 'OK '
@@ -82,16 +83,18 @@ exit 0
     Deny from All
 </FilesMatch>
 
-
+# index.php
 <?php
 	// PHP DDNS server
 	// 17.01.2019
 	// fake 404 16.10.2019
+	// client info 08.11.2019
 
 	/* Usage: sent arguments in GET form
 	For Bash DDNS client:
 		user=username -> your username in client settings
 		password=set_password -> your password in client settings
+		client=client_name -> client name in settings
 	For view:
 		user=view_username -> string in $view_user
 		password=view_password -> string in $view_password
@@ -115,6 +118,7 @@ exit 0
 			// Save data to files
 			file_put_contents('ip.txt', $_GET['ip']);
 			file_put_contents('date.txt', $_GET['date'] . ' ' . $_GET['time']);
+			if(isset($_GET['client'])) file_put_contents('client.txt', $_GET['client']); else file_put_contents('client.txt', 'client_name_undefined');
 
 			// Send confirmation to client
 			echo 'OK';
@@ -138,6 +142,8 @@ exit 0
 				echo file_get_contents('ip.txt');
 				echo '<br>';
 				echo file_get_contents('date.txt');
+				echo '<br>';
+				echo file_get_contents('client.txt');
 			}
 
 			// Done
